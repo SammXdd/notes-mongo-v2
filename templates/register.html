@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/register.css">
+    <title>Create Account</title>
+</head>
+<body>
+    <h1 style="font-size: 15px; text-align: center;"> <a style="color: white; text-decoration: none; position: relative; bottom: 10px;"
+        href="https://www.instagram.com/_.samarthhhhh._/">• Made By Sam</a></h1>
+
+    <h2>Create Account</h2>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form action="/register" method="post">
+        <label for="username">Username ( 5 letters ) :</label>
+        <input type="text" id="username" name="username" minlength="5" required>
+        <label for="password">Password:</label>
+        <div class="password-container">
+            <input type="password" id="password" name="password" required>
+            <span class="toggle-password">👁️</span>
+        </div>
+        <h5 style="letter-spacing: 1px;">Note: The password you going to input will be used to create, delete, and edit notes!</h5>
+        <input type="submit" value="Register">
+    </form>
+    <a href="/login">Already have an account?</a>
+</body>
+
+<script>
+    document.querySelector('.toggle-password').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            this.textContent = '👁️';
+        }
+    });
+</script>
+</html>

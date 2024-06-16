@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes - Sam</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/text.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+</head>
+<body>
+    <div class="text-content">
+        <pre style="font-size: 15px;">{{ file_content | safe }}</pre>
+    </div>
+
+    <script>
+        function copyText(text) {
+            // Create a temporary textarea element to hold the text
+            var tempTextArea = document.createElement("textarea");
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+
+            // Select the text and copy it to the clipboard
+            tempTextArea.select();
+            document.execCommand("copy");
+
+            // Remove the temporary textarea element
+            document.body.removeChild(tempTextArea);
+
+            alert("Text copied to clipboard");
+        }
+
+        // Add event listeners to all elements with the class 'copyable'
+        document.querySelectorAll('.copyable').forEach(function (element) {
+            element.addEventListener('click', function () {
+                copyText(element.innerText);
+            });
+        });
+    </script>
+</body>
+</html>

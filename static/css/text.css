@@ -1,0 +1,22 @@
+/* text.css */
+/* Link styling */
+.text-content a {
+    font-size: 16px;
+    color: #2a5bfc; /* Custom link color */
+    text-decoration: none; /* No underline */
+}
+
+.text-content a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+/* Copyable paragraph styling */
+.copyable {
+    cursor: pointer;
+}
+
+.copyable:hover {
+    background-color: #FCD12A; /* Change background color on hover */
+    color: #000; /* Change text color on hover */
+}
+

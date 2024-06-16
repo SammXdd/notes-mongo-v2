@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@600&family=Kanit&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: #FCD12A;
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    font-family: 'Gabarito', sans-serif;
+}
+
+form {
+    background-color: #fff;
+    color: black;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin: 10px 0;
+    font-family: 'Kanit', sans-serif;
+}
+
+#error {
+    font-family: 'Gabarito', sans-serif;
+    font-weight: 300;
+    margin-top: 10px;
+}
+
+input[type="password"] {
+    width: 100%;
+    padding: 12px; /* Increase the vertical padding */
+    border: 1px solid #b89300;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    
+}
+
+input[type="submit"] {
+    background-color: #FCD12A; /* Red color for delete button */
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+@media screen and (max-width: 768px) {
+    form {
+        max-width: 90%;
+    }
+}

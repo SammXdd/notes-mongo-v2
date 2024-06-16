@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Delete - {{ filename }}</title>
+   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/delete.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+</head>
+<body>
+   <h1>Delete File: {{ filename }}</h1>
+   <form method="POST">
+       <label for="password">Account Password:</label>
+       <input type="password" name="account_password" required><br>
+       <input type="submit" value="Delete">
+       {% if error %}
+           <p id="error">{{ error }}</p>
+       {% endif %}
+   </form>
+   
+   <script>
+       // Check if the error message is present and remove it after 5 seconds
+       const errorElement = document.getElementById("error");
+       if (errorElement) {
+           setTimeout(() => {
+               errorElement.style.display = "none";
+           }, 2000); // 5000 milliseconds (5 seconds)
+       }
+   </script>
+</body>
+</html>

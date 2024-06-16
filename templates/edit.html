@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Edit - {{ filename }}</title>
+   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/edit.css') }}">
+   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+</head>
+<body>
+   <h1>Edit Text File: {{ filename }}</h1>
+   <form method="POST">
+       <label for="password">Account Password:</label>
+       <input type="password" name="account_password" required><br>
+       
+       <label style="position: relative; top: 20px;" for="new_content">New Content:</label><br>
+       <textarea name="new_content" rows="4" cols="50" required>{{ file_content }}</textarea><br>
+
+       <label for="tags">Tags ( tag1, tag2 ):</label>
+       <input type="text" id="tags" name="tags" value="{{ ', '.join(file_tags) }}"><br>
+       
+       <input type="submit" value="Save">
+       {% if error %}
+           <p>{{ error }}</p>
+       {% endif %}
+   </form>
+</body>
+</html>

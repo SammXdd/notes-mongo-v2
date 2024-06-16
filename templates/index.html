@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Notes - Sam</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+</head>
+
+<body>
+    <h1 style="font-size: 15px;">• By <a style="color: #FCD12A;"
+            href="https://www.instagram.com/_.samarthhhhh._/">Sam</a></h1>
+
+    <h2 style="text-align: center; color: #FCD12A;"><a href="">Welcome,</a> {{ username }}</h2>
+
+    <h1>List of Database Files</h1>
+
+    <div class="dropdown-container">
+        <button class="dropdown-button">Search</button>
+        <div class="dropdown-content">
+            <form method="POST" action="{{ url_for('search_notes') }}">
+                <input type="text" id="tag" name="tag" placeholder="Find Note By Tag" required>
+                <input type="submit" value="Search">
+            </form>
+
+            <form method="POST" action="{{ url_for('search_content') }}">
+                <input type="text" id="content" name="content" placeholder="Find Content Directly" required>
+                <input type="submit" value="Search">
+            </form>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% if username == 'guest' %}
+    <p style="color: red;">Guest accounts cannot create databases.</p>
+    {% endif %}
+
+    {% if search_tag%}
+    <div class="bcontainer">
+        <a style="margin-top: 10px;" class="impbutton" href="{{ url_for('index')}}">Back</a>
+    </div>
+    {% elif search_content%}
+    <div class="bcontainer">
+        <a style="margin-top: 10px;" class="impbutton" href="{{ url_for('index')}}">Back</a>
+    </div>
+    {% endif %}
+
+    {% if search_tag %}
+    <div>
+        <h2>Search Results for Tag: <span style="color: #FCD12A;">{{ search_tag }}</span></h2>
+    </div>
+    {% elif search_content %}
+    <div>
+        <h2>Search Results for Content:  <span style="color: #FCD12A;">{{ search_content }}</span></h2>
+    </div>
+    {% else %}
+    <h2 style="color: #FCD12A;">• Public Notes</h2>
+    {% endif %}
+
+    <ul>
+        {% for file in public_notes %}
+        <li>
+            <div class="frontt">
+                {% if file.redirect %}
+                <a style="color: #FCD12A;" class="filetext"
+                    href="{{ url_for('feature') }}">> {{ file.filename }}</a>
+                {% else %}
+                <a style="color: #FCD12A;" class="filetext"
+                    href="{{ url_for('display_text', filename=file.filename) }}">> {{ file.filename }}</a>
+                {% endif %}
+                {% if not file.redirect %}
+                <a class="butt" href="{{ url_for('edit_text', filename=file.filename) }}"><button
+                        class="edit-button">Edit</button></a>
+                <a class="butt" href="{{ url_for('delete_text', filename=file.filename) }}"><button
+                        class="delete-button">Delete</button></a>
+                <button class="info-button"
+                    onclick="showInfo('{{ file.username }}', '{{ file.tags | join(', ') }}')">Info</button>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% if not search_tag %}
+    <h2 style="color: #FCD12A;">• Your Private Notes</h2>
+    <ul>
+        {% for file in private_notes %}
+        <li>
+            <div class="frontt">
+                {% if file.redirect %}
+                <a style="color: #FCD12A;" class="filetext"
+                    href="{{ url_for('feature') }}">> {{ file.filename }}</a>
+                {% else %}
+                <a style="color: #FCD12A;" class="filetext"
+                    href="{{ url_for('display_text', filename=file.filename) }}">> {{ file.filename }}</a>
+                {% endif %}
+                {% if not file.redirect %}
+                <a class="butt" href="{{ url_for('edit_text', filename=file.filename) }}"><button
+                        class="edit-button">Edit</button></a>
+                <a class="butt" href="{{ url_for('delete_text', filename=file.filename) }}"><button
+                        class="delete-button">Delete</button></a>
+                <button class="info-button"
+                    onclick="showInfo('{{ file.username }}', '{{ file.tags | join(', ') }}')">Info</button>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    
+    <div class="create">
+        <h2>Create New Database File</h2>
+        <a href="{{ url_for('create_text') }}"><button>Create</button></a>
+    </div>
+    
+
+    <div class="bcontainer">
+        <a style="margin-top: 50px;" class="logbutton" href="/logout">Logout</a>
+    </div>
+
+    <!-- Info Pop-up -->
+    <div id="info-popup" class="info-popup">
+        <div class="info-popup-content">
+            <span class="close" onclick="closeInfo()">&times;</span>
+            <p id="popup-username"></p>
+            <p id="popup-tags"></p>
+        </div>
+    </div>
+
+    <script>
+        function showInfo(username, tags) {
+            document.getElementById("popup-username").innerText = "Created by: " + username;
+            document.getElementById("popup-tags").innerText = "Tags: " + tags;
+            document.getElementById("info-popup").style.display = "block";
+        }
+
+        function closeInfo() {
+            document.getElementById("info-popup").style.display = "none";
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const dropdownButton = document.querySelector('.dropdown-button');
+            const dropdownContent = document.querySelector('.dropdown-content');
+
+            dropdownButton.addEventListener('click', () => {
+                dropdownContent.classList.toggle('show');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
