@@ -3,7 +3,7 @@
 
 <head>
     <title>Notes - Sam</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}?v={{ version }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 </head>
 
@@ -16,7 +16,7 @@
 
             <nav>
                 <ul class="nav-links">
-                    <li><a href="#">Home</a></li>
+                    <li><a href="#" class="home-button">Home</a></li>
                     <li><a href="{{ url_for('create_text') }}">Create Note</a></li>
                     <li><a href="/logout">Logout</a></li>
                 </ul>
@@ -211,11 +211,22 @@
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
         const body = document.body;
+        const homeButton = document.querySelector('.home-button');  // Select the home button
 
         hamburger.addEventListener('click', () => {
             navLinks.classList.toggle('nav-active'); // Toggle the navbar visibility
             body.classList.toggle('navbar-active'); // Prevent scrolling when navbar is active
         });
+
+        // Add event listener for "Home" button to close navbar and reset page scroll
+        if (homeButton) {
+            homeButton.addEventListener('click', () => {
+                // Close the navbar
+                navLinks.classList.remove('nav-active');
+                body.classList.remove('navbar-active'); // Reset page scroll behavior
+            });
+        }
+
 
 
         function showInfo(username, tags) {
@@ -266,6 +277,22 @@
         function selectUsername(username) {
             document.getElementById('usernameInput').value = username; // Set the selected username
             document.getElementById('suggestions').style.display = 'none'; // Hide suggestions
+        }
+
+
+        // delete cookie
+        function deleteCookies() {
+            const cookies = document.cookie.split(";");
+            cookies.forEach(cookie => {
+                const cookieName = cookie.split("=")[0].trim();
+                document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+            });
+        }
+
+        // Function to clear cache and reload the page
+        function clearCacheAndReload() {
+            deleteCookies(); // Delete cookies
+            window.location.reload(true); // Force browser to reload fresh content
         }
 
     </script>

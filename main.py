@@ -29,9 +29,16 @@ def wrap_copyable_paragraphs(text):
     return wrapped_text
 
 
+@app.after_request
+def add_cache_control(response):
+    response.cache_control.no_store = True
+    response.cache_control.must_revalidate = True
+    return response
+
 @app.route('/')
 def index():
     if 'username' in session:
+        version = "1.0.0"
         username = session['username']
         public_notes = collection.find({"visibility": True})
         private_notes = collection.find({"username": username, "visibility": False})
@@ -42,7 +49,7 @@ def index():
         if redirect_doc and collection.count_documents({"redirect": {"$ne": ""}}) == 1:
             return redirect(url_for('feature'))
 
-        return render_template('index.html', text_files=text_files, username=username, public_notes=public_notes, private_notes=private_notes, shared_notes=shared_notes)
+        return render_template('index.html', text_files=text_files, username=username, public_notes=public_notes, private_notes=private_notes, shared_notes=shared_notes, version=version)
     
     return redirect(url_for('login'))
 

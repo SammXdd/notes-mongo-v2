@@ -354,21 +354,22 @@ p.guest-message {
 }
 
 /* Mobile Styles */
+/* Mobile Styles */
 @media (max-width: 768px) {
     .nav-links {
-        position: fixed; /* Change from absolute to fixed */
+        position: fixed;
         top: 0;
         right: 0;
-        height: 100vh; /* Full screen height */
-        width: 250px; /* Fixed width of the navbar */
+        height: 100vh;
+        width: 250px;
         background-color: #333;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         transform: translateX(100%); /* Keep it off-screen by default */
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in-out; /* Smooth sliding */
         z-index: 999;
-        overflow: hidden; /* Prevent scrolling issues */
+        overflow: hidden;
     }
 
     .nav-links.nav-active {
@@ -383,16 +384,16 @@ p.guest-message {
         display: flex;
     }
 
-    /* Body overflow fix when navbar is open */
+    /* Prevent page scroll when navbar is open */
     body.navbar-active {
-        overflow: hidden; /* Prevent scrolling when navbar is active */
+        overflow: hidden;
     }
 }
 
 /* Desktop Styles */
 @media (min-width: 769px) {
     .nav-links {
-        flex-direction: row; /* Ensure horizontal layout on larger screens */
+        flex-direction: row;
         position: static;
         height: auto;
         width: auto;
@@ -404,14 +405,14 @@ p.guest-message {
     }
 
     .nav-links li {
-        margin: 0; /* Remove vertical margins */
+        margin: 0;
     }
 
-    /* Reduce navbar height for desktop */
     .navbar {
-        padding: 0.3rem 1rem; /* Further reduced padding to make the navbar even shorter */
+        padding: 0.3rem 1rem;
     }
 }
+
 
 /* General modal styles */
 .modal {
