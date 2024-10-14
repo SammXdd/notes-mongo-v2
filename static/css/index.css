@@ -356,24 +356,23 @@ p.guest-message {
 /* Mobile Styles */
 @media (max-width: 768px) {
     .nav-links {
-        position: fixed;
-        top: 80px;
+        position: fixed; /* Change from absolute to fixed */
+        top: 0;
         right: 0;
-        height: 100vh;
+        height: 100vh; /* Full screen height */
         width: 250px; /* Fixed width of the navbar */
         background-color: #333;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        width: 100%;
-        transform: translateX(100%);
+        transform: translateX(100%); /* Keep it off-screen by default */
         transition: transform 0.3s ease-in-out;
         z-index: 999;
+        overflow: hidden; /* Prevent scrolling issues */
     }
 
     .nav-links.nav-active {
-        transform: translateX(0%);
-        z-index: 999; /* Nav menu stays on top when active */
+        transform: translateX(0); /* Slide the navbar in */
     }
 
     .nav-links li {
@@ -382,6 +381,11 @@ p.guest-message {
 
     .hamburger {
         display: flex;
+    }
+
+    /* Body overflow fix when navbar is open */
+    body.navbar-active {
+        overflow: hidden; /* Prevent scrolling when navbar is active */
     }
 }
 

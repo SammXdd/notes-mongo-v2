@@ -210,10 +210,13 @@
 
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
+        const body = document.body;
 
         hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('nav-active');
+            navLinks.classList.toggle('nav-active'); // Toggle the navbar visibility
+            body.classList.toggle('navbar-active'); // Prevent scrolling when navbar is active
         });
+
 
         function showInfo(username, tags) {
             document.getElementById("popup-username").innerText = "Created by: " + username;
