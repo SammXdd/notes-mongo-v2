@@ -119,25 +119,32 @@
 <ul>
     {% for file in private_notes %}
     <li>
-        <div class="frontt">
+        <div class="private-note">
             {% if file.redirect %}
             <a style="color: #FCD12A;" class="filetext" href="{{ url_for('feature') }}">> {{ file.filename }}</a>
             {% else %}
             <a style="color: #FCD12A;" class="filetext" href="{{ url_for('display_text', filename=file.filename) }}">> {{ file.filename }}</a>
             {% endif %}
             {% if not file.redirect %}
-            <a class="butt" href="{{ url_for('edit_text', filename=file.filename) }}"><button class="edit-button">Edit</button></a>
-            <a class="butt" href="{{ url_for('delete_text', filename=file.filename) }}"><button class="delete-button">Delete</button></a>
-            <button class="info-button" onclick="showInfo('{{ file.username }}', '{{ file.tags | join(', ') }}')">Info</button>
-
-            <!-- Share button -->
-            <button class="share-button" onclick="showShareModal('{{ file.filename }}')">Share</button>
+            <div class="note-actions">
+                <div class="actions">
+                    <a class="butt" href="{{ url_for('edit_text', filename=file.filename) }}">
+                        <button class="edit-button">Edit</button>
+                    </a>
+                    <a class="butt" href="{{ url_for('delete_text', filename=file.filename) }}">
+                        <button class="delete-button">Delete</button>
+                    </a>
+                    <button class="info-button" onclick="showInfo('{{ file.username }}', '{{ file.tags | join(', ') }}')">Info</button>
+                    <button class="share-button" onclick="showShareModal('{{ file.filename }}')">Share</button>
+                </div>
+            </div>
             {% endif %}
         </div>
     </li>
     {% endfor %}
 </ul>
 {% endif %}
+
 
 <!-- Share Modal -->
 <div id="shareModal" class="modal">
