@@ -304,3 +304,178 @@ p.guest-message {
         bottom: 4px;
     }
 }
+
+/* General styling for the navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem; /* Reduced padding to make the navbar shorter */
+    background-color: #333;
+    z-index: 1000; /* Ensures navbar stays on top */
+}
+
+.navbar .logo h1 {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex; /* Ensure menu is displayed horizontally on large screens */
+    gap: 2rem; /* Space between menu items */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.nav-links li {
+    display: inline; /* Ensure list items stay inline */
+}
+
+.nav-links li a {
+    color: #FCD12A;
+    text-decoration: none;
+    font-size: 1rem; /* Adjust font size if needed */
+    padding: 0.5rem 1rem; /* Add some padding for clickable area */
+}
+
+/* Hamburger menu hidden by default */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.hamburger .bar {
+    width: 25px;
+    height: 3px;
+    background-color: #FCD12A;
+    margin: 4px 0;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .nav-links {
+        position: absolute;
+        top: 80px;
+        right: 0;
+        height: 100vh;
+        background-color: #333;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 999;
+    }
+
+    .nav-links.nav-active {
+        transform: translateX(0%);
+        z-index: 999; /* Nav menu stays on top when active */
+    }
+
+    .nav-links li {
+        margin: 20px 0;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+    .nav-links {
+        flex-direction: row; /* Ensure horizontal layout on larger screens */
+        position: static;
+        height: auto;
+        width: auto;
+        transform: none;
+    }
+
+    .hamburger {
+        display: none; /* Hide hamburger menu on larger screens */
+    }
+
+    .nav-links li {
+        margin: 0; /* Remove vertical margins */
+    }
+
+    /* Reduce navbar height for desktop */
+    .navbar {
+        padding: 0.3rem 1rem; /* Further reduced padding to make the navbar even shorter */
+    }
+}
+
+/* General modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4); /* Dark semi-transparent background */
+}
+
+.modal-content {
+    background-color: black;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ffffff;
+    width: 40%; /* Default for larger screens */
+    max-width: 600px; /* Set a max-width for large screens */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.suggestions-list {
+    /* position: absolute; 
+    background-color: #fff;
+    border: 1px solid #ccc;
+    */
+    max-height: 150px;
+    overflow-y: auto;
+    /*width: 80%;  Adjust width as needed */
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+
+.suggestions-list li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestions-list li:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+
+/* Responsive modal adjustments for smaller devices */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%; /* Take most of the screen width on mobile */
+        padding: 15px; /* Adjust padding for smaller screens */
+        font-size: 0.9rem; /* Reduce font size slightly for smaller screens */
+    }
+
+    .close {
+        font-size: 24px; /* Slightly smaller close button */
+    }
+}

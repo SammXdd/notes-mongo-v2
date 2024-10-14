@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages,jsonify
 import pymongo
 import urllib.parse
 import re
@@ -16,7 +16,7 @@ users_collection = db["users"]
 def make_links(text):
     # Regular expression pattern for URLs
     url_pattern = re.compile(r'(https?://\S+)')
-    # Replace URLs in text with HTML links
+
     return url_pattern.sub(r'<a href="\1" target="_blank">\1</a>', text)
 
 
@@ -35,13 +35,53 @@ def index():
         username = session['username']
         public_notes = collection.find({"visibility": True})
         private_notes = collection.find({"username": username, "visibility": False})
+        shared_notes = collection.find({"shared_with": username})  # Fetch notes shared with the user
         text_files = [doc["filename"] for doc in collection.find({}, {"filename": 1})]
 
         redirect_doc = collection.find_one({"redirect": {"$ne": ""}})
         if redirect_doc and collection.count_documents({"redirect": {"$ne": ""}}) == 1:
             return redirect(url_for('feature'))
-        return render_template('index.html', text_files=text_files, username=username, public_notes=public_notes, private_notes=private_notes)
+
+        return render_template('index.html', text_files=text_files, username=username, public_notes=public_notes, private_notes=private_notes, shared_notes=shared_notes)
+    
     return redirect(url_for('login'))
+
+
+
+@app.route('/share', methods=['POST'])
+def share_note():
+    if 'username' in session:
+        owner = session['username']
+        filename = request.form['filename']
+        shared_with = request.form['username']
+        
+        # Check if the user to share with exists
+        target_user = users_collection.find_one({"username": shared_with})
+        if not target_user:
+            flash(f"User '{shared_with}' does not exist.")
+            return redirect(url_for('index'))
+        
+        # Add the username to the note's 'shared_with' field
+        collection.update_one(
+            {"filename": filename, "username": owner},
+            {"$addToSet": {"shared_with": shared_with}}  # Add without duplicates
+        )
+        flash(f"Note shared with {shared_with} successfully!")
+        return redirect(url_for('index'))
+    
+    return redirect(url_for('login'))
+
+@app.route('/get_usernames')
+def get_usernames():
+    query = request.args.get('query')
+    if query:
+        # Use MongoDB's $regex to find usernames that match the query
+        matching_users = users_collection.find({"username": {"$regex": query, "$options": "i"}})
+        usernames = [user["username"] for user in matching_users]
+        return jsonify({'usernames': usernames})
+    return jsonify({'usernames': []})
+
+
 
 @app.route('/feature')
 def feature():

@@ -8,13 +8,36 @@
 </head>
 
 <body>
-    <h1 style="font-size: 15px;">• By <a style="color: #FCD12A;"
-            href="https://www.instagram.com/_.samarthhhhh._/">Sam</a></h1>
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <h1>Notes By <a href="https://www.instagram.com/_.samarthhhhh._/" style="color: #FCD12A;">Sam</a></h1>
+            </div>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="{{ url_for('create_text') }}">Create Note</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+
+            <!-- Hamburger Menu Icon -->
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <h1 style="font-size: 15px;">• By <a style="color: #FCD12A;" href="https://www.instagram.com/_.samarthhhhh._/">Sam</a></h1>
 
     <h2 style="text-align: center; color: #FCD12A;"><a href="">Welcome,</a> {{ username }}</h2>
 
     <h1>List of Database Files</h1>
 
+    <!-- Dropdown Search Section -->
     <div class="dropdown-container">
         <button class="dropdown-button">Search</button>
         <div class="dropdown-content">
@@ -88,35 +111,82 @@
         {% endfor %}
     </ul>
 
+
+
+
     {% if not search_tag %}
-    <h2 style="color: #FCD12A;">• Your Private Notes</h2>
-    <ul>
-        {% for file in private_notes %}
-        <li>
-            <div class="frontt">
-                {% if file.redirect %}
-                <a style="color: #FCD12A;" class="filetext"
-                    href="{{ url_for('feature') }}">> {{ file.filename }}</a>
-                {% else %}
-                <a style="color: #FCD12A;" class="filetext"
-                    href="{{ url_for('display_text', filename=file.filename) }}">> {{ file.filename }}</a>
-                {% endif %}
-                {% if not file.redirect %}
-                <a class="butt" href="{{ url_for('edit_text', filename=file.filename) }}"><button
-                        class="edit-button">Edit</button></a>
-                <a class="butt" href="{{ url_for('delete_text', filename=file.filename) }}"><button
-                        class="delete-button">Delete</button></a>
-                <button class="info-button"
-                    onclick="showInfo('{{ file.username }}', '{{ file.tags | join(', ') }}')">Info</button>
-                {% endif %}
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+<h2 style="color: #FCD12A;">• Your Private Notes</h2>
+<ul>
+    {% for file in private_notes %}
+    <li>
+        <div class="frontt">
+            {% if file.redirect %}
+            <a style="color: #FCD12A;" class="filetext" href="{{ url_for('feature') }}">> {{ file.filename }}</a>
+            {% else %}
+            <a style="color: #FCD12A;" class="filetext" href="{{ url_for('display_text', filename=file.filename) }}">> {{ file.filename }}</a>
+            {% endif %}
+            {% if not file.redirect %}
+            <a class="butt" href="{{ url_for('edit_text', filename=file.filename) }}"><button class="edit-button">Edit</button></a>
+            <a class="butt" href="{{ url_for('delete_text', filename=file.filename) }}"><button class="delete-button">Delete</button></a>
+            <button class="info-button" onclick="showInfo('{{ file.username }}', '{{ file.tags | join(', ') }}')">Info</button>
+
+            <!-- Share button -->
+            <button class="share-button" onclick="showShareModal('{{ file.filename }}')">Share</button>
+            {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<!-- Share Modal -->
+<div id="shareModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Share Note</h2>
+        <form id="shareForm" method="POST" action="{{ url_for('share_note') }}">
+            <input type="hidden" id="filenameInput" name="filename">
+            <label for="username">Enter username to share:</label>
+            <input type="text" id="usernameInput" name="username" oninput="fetchUsernames()" required autocomplete="off">
+            <div id="suggestions" class="suggestions-list"></div> <!-- Container for suggestions -->
+            <button type="submit" class="submit-button">Share</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    function showShareModal(filename) {
+        document.getElementById('filenameInput').value = filename;
+        document.getElementById('shareModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('shareModal').style.display = 'none';
+    }
+</script>
+
+
+
+
+<h2 style="color: #FCD12A;">• Notes Shared With You</h2>
+<ul>
+    {% for file in shared_notes %}
+    <li>
+        <div class="frontt">
+            <a style="color: #FCD12A;" class="filetext" href="{{ url_for('display_text', filename=file.filename) }}">> {{ file.filename }}</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+
+
+
+
 
     
-    <div class="create">
+    <!-- <div class="create">
         <h2>Create New Database File</h2>
         <a href="{{ url_for('create_text') }}"><button>Create</button></a>
     </div>
@@ -124,7 +194,7 @@
 
     <div class="bcontainer">
         <a style="margin-top: 50px;" class="logbutton" href="/logout">Logout</a>
-    </div>
+    </div> -->
 
     <!-- Info Pop-up -->
     <div id="info-popup" class="info-popup">
@@ -136,6 +206,15 @@
     </div>
 
     <script>
+
+
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('nav-active');
+        });
+
         function showInfo(username, tags) {
             document.getElementById("popup-username").innerText = "Created by: " + username;
             document.getElementById("popup-tags").innerText = "Tags: " + tags;
@@ -154,7 +233,40 @@
                 dropdownContent.classList.toggle('show');
             });
         });
+
+
+        function fetchUsernames() {
+        const input = document.getElementById('usernameInput').value;
+        if (input.length >= 3) { // Only fetch if 3 or more characters
+            fetch(`/get_usernames?query=${input}`)
+            .then(response => response.json())
+            .then(data => {
+                const suggestionsContainer = document.getElementById('suggestions');
+                suggestionsContainer.innerHTML = ''; // Clear previous suggestions
+                if (data.usernames.length > 0) {
+                    data.usernames.forEach(username => {
+                        const suggestionItem = document.createElement('li');
+                        suggestionItem.textContent = username;
+                        suggestionItem.onclick = () => selectUsername(username);
+                        suggestionsContainer.appendChild(suggestionItem);
+                    });
+                    suggestionsContainer.style.display = 'block'; // Show suggestions
+                } else {
+                    suggestionsContainer.style.display = 'none'; // Hide if no matches
+                }
+            });
+            } else {
+                document.getElementById('suggestions').style.display = 'none'; // Hide suggestions if less than 3 chars
+            }
+        }
+
+        function selectUsername(username) {
+            document.getElementById('usernameInput').value = username; // Set the selected username
+            document.getElementById('suggestions').style.display = 'none'; // Hide suggestions
+        }
+
     </script>
+
 
 </body>
 
