@@ -204,6 +204,7 @@ def edit_text(filename):
 
 @app.route('/delete/<filename>', methods=['GET', 'POST'])
 def delete_text(filename):
+    filename = urllib.parse.unquote(filename)
     if session['username'] == 'Guest':
         flash("Guest account cannot delete databases.")
         return redirect(url_for('index'))
