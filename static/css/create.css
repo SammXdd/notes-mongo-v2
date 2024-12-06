@@ -65,3 +65,18 @@ input[type="submit"] {
         max-width: 90%;
     }
 }
+
+#expiration {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#expiration input[type="number"] {
+    width: 30%;
+    padding: 10px;
+    border: 1px solid #b89300;
+    border-radius: 5px;
+    font-size: 16px;
+}
+

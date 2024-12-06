@@ -3,6 +3,10 @@ import pymongo
 import urllib.parse
 import re
 import html
+from enc import encode_password
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+import pytz
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -28,6 +32,18 @@ def wrap_copyable_paragraphs(text):
     wrapped_text = pattern.sub(r'<div class="copyable">\1</div>', text)
     return wrapped_text
 
+def delete_expired_notes():
+    now = datetime.utcnow()
+    result = collection.delete_many({"expiration_time": {"$lt": now}})
+    print(f"Deleted {result.deleted_count} expired notes.")  # Logging for debugging
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=delete_expired_notes, trigger="interval", minutes=1)  # Check every minute
+scheduler.start()
+
+def utc_to_ist(utc_dt):
+    ist = pytz.timezone('Asia/Kolkata')
+    return utc_dt.astimezone(ist)
 
 @app.after_request
 def add_cache_control(response):
@@ -52,6 +68,12 @@ def index():
         return render_template('index.html', text_files=text_files, username=username, public_notes=public_notes, private_notes=private_notes, shared_notes=shared_notes, version=version)
     
     return redirect(url_for('login'))
+
+@app.route('/test_delete')
+def test_delete():
+    delete_expired_notes()
+    return "Checked for expired notes."
+
 
 
 
@@ -125,11 +147,18 @@ def create_text():
             filename = request.form['file_name']
             content = request.form['file_content']
             account_password = request.form['password']  # Rename password field to account_password
+            encoded_password = encode_password(account_password)
             visibility = request.form['visibility'] 
             tags = request.form['tags'].split(',')
             tags = [tag.strip() for tag in tags]
 
             content = '\n'.join(content.splitlines())
+
+            expiration_days = int(request.form.get('days') or 0)
+            expiration_hours = int(request.form.get('hours') or 0)
+            expiration_minutes = int(request.form.get('minutes') or 0)
+            expiration_time = datetime.utcnow() + timedelta(days=expiration_days, hours=expiration_hours, minutes=expiration_minutes)
+
             
             # Determine visibility
             if visibility == 'public':
@@ -142,17 +171,18 @@ def create_text():
                 'filename': filename,
                 'content': content,
                 'visibility': visibility,
-                'tags': ', '.join(tags)
+                'tags': ', '.join(tags),
+                "expiration_time": expiration_time
             }
 
             # Flash error message if account password is incorrect
             user = users_collection.find_one({"username": session['username']})
-            if not user or account_password != user["password"]:
+            if not user or encoded_password != user["password"]:
                 flash("Incorrect account password, creation failed.")
-                return redirect(url_for('create_text'))
+                return redirect(url_for('create_text')) 
 
             # Store data in MongoDB
-            collection.insert_one({"username": username, "filename": filename, "content": content, "visibility": is_public, "tags": tags})
+            collection.insert_one({"username": username, "filename": filename, "content": content, "visibility": is_public, "tags": tags, "expiration_time": expiration_time})
             
             # Remove stored form data from session
             session.pop('form_data', None)
@@ -175,17 +205,16 @@ def edit_text(filename):
     document = collection.find_one({"filename": filename})
     if document:
         if request.method == 'POST':
-            entered_account_password = request.form['account_password']  # Prompt for account password
-            user = users_collection.find_one({"username": session['username']})  # Retrieve user from users_collection
-            if user and entered_account_password == user["password"]:  # Compare with the password stored in users_collection
+            entered_password = request.form['account_password']
+            encoded_password = encode_password(entered_password)  # Encode password
+
+            user = users_collection.find_one({"username": session['username']})
+            if user and encoded_password == user["password"]:
                 new_content = request.form['new_content']
-                new_content = '\n'.join(new_content.splitlines())
-                
-                tags = request.form['tags'].split(',')
-                tags = [tag.strip() for tag in tags]
+                tags = [tag.strip() for tag in request.form['tags'].split(',')]
                 
                 collection.update_one(
-                    {"filename": filename}, 
+                    {"filename": filename},
                     {"$set": {"content": new_content, "tags": tags}}
                 )
                 flash("File edited successfully!")
@@ -194,12 +223,10 @@ def edit_text(filename):
                 flash("Incorrect account password, editing failed.")
                 return redirect(url_for('index'))
         else:
-            file_content = document["content"]
-            file_tags = document.get("tags", [])
-            return render_template('edit.html', filename=filename, file_content=file_content, file_tags=file_tags)
-    else:
-        flash("File not found.")
-        return redirect(url_for('index'))
+            return render_template('edit.html', filename=filename, file_content=document["content"], file_tags=document.get("tags", []))
+
+    flash("File not found.")
+    return redirect(url_for('index'))
 
 
 @app.route('/delete/<filename>', methods=['GET', 'POST'])
@@ -212,9 +239,11 @@ def delete_text(filename):
     document = collection.find_one({"filename": filename})
     if document:
         if request.method == 'POST':
-            entered_account_password = request.form['account_password']  # Prompt for account password
-            user = users_collection.find_one({"username": session['username']})  # Retrieve user from users_collection
-            if user and entered_account_password == user["password"]:  # Compare with the password stored in users_collection
+            entered_password = request.form['account_password']
+            encoded_password = encode_password(entered_password)  # Encode password
+
+            user = users_collection.find_one({"username": session['username']})
+            if user and encoded_password == user["password"]:
                 collection.delete_one({"filename": filename})
                 flash("File deleted successfully!")
                 return redirect(url_for('index'))
@@ -223,9 +252,10 @@ def delete_text(filename):
                 return redirect(url_for('index'))
         else:
             return render_template('delete.html', filename=filename)
-    else:
-        flash("File not found.")
-        return redirect(url_for('index'))
+
+    flash("File not found.")
+    return redirect(url_for('index'))
+
 
 @app.template_filter('nl2br')
 def nl2br(value):
@@ -239,17 +269,24 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
+        # Encode the new password
+        encoded_password = encode_password(password)
 
         existing_user = users_collection.find_one({"username": username})
         if existing_user:
             flash("User already exists. Please choose a different username.")
             return redirect(url_for('register'))
 
-        users_collection.insert_one({"username": username, "password": password})
+        # Store encoded password
+        users_collection.insert_one({"username": username, "password": encoded_password})
         flash("Registration successful! Please log in.")
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
+# main.py
+from enc import encode_password
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -259,20 +296,29 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-
-        user = users_collection.find_one({"username": username, "password": password})
+        
+        # Encode the input password using custom encoding
+        encoded_password = encode_password(password)
+        
+        # Find the user in the database with the encoded password
+        user = users_collection.find_one({"username": username, "password": encoded_password})
+        
+        # Check if the user exists and passwords match
         if user:
             session['username'] = username
+            flash("Login successful!")
             return redirect(url_for('index'))
 
         flash("Invalid username or password")
         return redirect(url_for('login'))
-    
+
+    # Allow a "Guest" login without password
     if request.method == 'GET' and 'skip_login' in request.args:
-        session['username'] = 'Guest'  # Setting a dummy username for non-logged-in users
+        session['username'] = 'Guest'
         return redirect(url_for('index'))
 
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
@@ -298,6 +344,16 @@ def search_content():
             return render_template('index.html', public_notes=notes, search_content=content)
     return redirect(url_for('index'))
 
+
+@app.route('/display_note/<filename>')
+def display_note(filename):
+    document = collection.find_one({"filename": filename})
+    if document:
+        expiration_time_utc = document["expiration_time"]
+        expiration_time_ist = utc_to_ist(expiration_time_utc)
+
+        return render_template('note_display.html', document=document, expiration_time=expiration_time_ist)
+    return "Note not found."
 
 if __name__ == '__main__':
     app.run(debug=True)

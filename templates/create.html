@@ -7,28 +7,42 @@
 </head>
 <body>
    <h1>Create New Database File</h1>
+   {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: red; text-align: center;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
    <form method="POST" action="{{ url_for('create_text') }}">
       <label for="file_name">Name:</label>
       <input type="text" id="file_name" name="file_name" value="{{ form_data.filename if form_data else '' }}" required><br>
+
       <label style="position: relative; top: 20px;" for="file_content">Content:</label><br>
       <textarea name="file_content" rows="4" cols="50" required>{{ form_data.content if form_data else '' }}</textarea><br>
+
       <label for="password">Account Password:</label>
       <input type="password" name="password" required><br>
+
       <label for="visibility">Visibility:</label>
       <select id="visibility" name="visibility">
           <option value="public" {% if form_data and form_data.visibility == 'public' %} selected {% endif %}>Public</option>
           <option value="private" {% if form_data and form_data.visibility == 'private' %} selected {% endif %}>Private</option>
       </select><br>
-      <label for="tags">Tags ( tag1, tag2 ):</label>
+
+      <label for="tags">Tags (tag1, tag2):</label>
       <input type="text" id="tags" name="tags" value="{{ form_data.tags if form_data else '' }}" required><br>
+
+      <!-- Expiration Time Inputs -->
+      <label for="expiration">Set Expiration:</label>
+      <div id="expiration">
+          <input type="number" id="days" name="days" placeholder="Days" min="0" max="30">
+          <input type="number" id="hours" name="hours" placeholder="Hours" min="0" max="24">
+          <input type="number" id="minutes" name="minutes" placeholder="Minutes" min="0" max="60">
+      </div>
+
       <input type="submit" value="Create">
   </form>
-  {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <p style="color: red;">{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+  
 </body>
 </html>
